@@ -11,9 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { User } from "lucide-react";
-import { toast } from "sonner"
-
-
+import { toast } from "sonner";
+import axios from "axios";
 
 declare global {
   interface Window {
@@ -46,38 +45,44 @@ const Navbar = () => {
 
   const handleConnect = () => {
     setIsLoading(true);
-    
+
     if (!window.hive_keychain) {
-      toast.error("Hive Keychain not found. Please install the browser extension to connect.");
+      toast.error(
+        "Hive Keychain not found. Please install the browser extension to connect."
+      );
       setIsLoading(false);
       return;
     }
-    
+
     if (!username) {
       toast.warning("Please enter your Hive username.");
       setIsLoading(false);
       return;
     }
-    
-    
+
     const challenge = `fanshow-auth-${Date.now()}`;
-    
+
     window.hive_keychain.requestSignBuffer(
       username,
       challenge,
-      "Posting", 
+      "Posting",
       (response) => {
         if (response.success) {
           setIsConnected(true);
           localStorage.setItem("walletConnection", username);
-          localStorage.setItem("walletAuth", JSON.stringify({
-            username,
-            timestamp: Date.now(),
-            signature: response.result
-          }));
-          
+          localStorage.setItem(
+            "walletAuth",
+            JSON.stringify({
+              username,
+              timestamp: Date.now(),
+              signature: response.result,
+            })
+          );
+
+          axios.post("/user/login", { username });
+
           toast.success("Connected successfully!");
-          
+
           setIsOpen(false);
         } else {
           toast.error("Authentication failed. Please try again.");
@@ -105,7 +110,7 @@ const Navbar = () => {
             FanShow
           </div>
         </Link>
-        
+
         <nav className="hidden md:flex items-center gap-6">
           {[
             { path: "/", label: "Home" },
@@ -116,26 +121,27 @@ const Navbar = () => {
               key={link.path}
               to={link.path}
               className={`text-sm font-medium transition-colors hover:text-blue-600 relative py-1
-                ${isActive(link.path) 
-                  ? "text-blue-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600" 
-                  : "text-gray-600"
+                ${
+                  isActive(link.path)
+                    ? "text-blue-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600"
+                    : "text-gray-600"
                 }`}
             >
               {link.label}
             </Link>
           ))}
         </nav>
-        
+
         <div>
           {isConnected ? (
             <div className="flex items-center gap-2">
               <div className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
                 {username}
               </div>
-              <Button 
-                onClick={handleDisconnect} 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                onClick={handleDisconnect}
+                variant="ghost"
+                size="sm"
                 className="text-gray-500 hover:text-gray-700"
               >
                 Disconnect
@@ -144,9 +150,9 @@ const Navbar = () => {
           ) : (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="flex items-center gap-1 border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                   onClick={() => setIsOpen(true)}
                 >
@@ -156,7 +162,9 @@ const Navbar = () => {
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px] rounded-lg">
                 <DialogHeader>
-                  <DialogTitle className="text-center text-xl">Connect to Hive Keychain</DialogTitle>
+                  <DialogTitle className="text-center text-xl">
+                    Connect to Hive Keychain
+                  </DialogTitle>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
                   <Input
@@ -166,12 +174,13 @@ const Navbar = () => {
                     className="focus-visible:ring-blue-500"
                   />
                   <p className="text-sm text-muted-foreground">
-                    You need the Hive Keychain browser extension to connect. Your Posting key will be used to verify your identity.
+                    You need the Hive Keychain browser extension to connect.
+                    Your Posting key will be used to verify your identity.
                   </p>
                 </div>
                 <DialogFooter className="flex-col sm:flex-row sm:justify-end">
-                  <Button 
-                    onClick={handleConnect} 
+                  <Button
+                    onClick={handleConnect}
                     className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200"
                     disabled={isLoading}
                   >
