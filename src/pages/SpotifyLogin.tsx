@@ -23,9 +23,7 @@ const SpotifyLogin: React.FC = () => {
   const checkLoginStatus = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(
-        "http://localhost:3000/api/spotify/user"
-      );
+      const response = await axios.get("/spotify/user");
       setUserProfile(response.data);
     } catch (error) {
       console.error("Error checking login status:", error);
@@ -37,9 +35,7 @@ const SpotifyLogin: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/api/spotify/login"
-      );
+      const response = await axios.get("/spotify/login");
       window.location.href = response.data.authUrl;
     } catch (error) {
       console.error("Error initiating Spotify login:", error);
@@ -48,7 +44,7 @@ const SpotifyLogin: React.FC = () => {
 
   const handleDisconnect = async () => {
     try {
-      await axios.post("http://localhost:3000/api/spotify/disconnect");
+      await axios.post("/spotify/disconnect");
       setUserProfile(null);
     } catch (error) {
       console.error("Error disconnecting Spotify:", error);
