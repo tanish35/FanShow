@@ -74,6 +74,10 @@ const ConcertBooking: React.FC = () => {
     };
   }, []);
 
+  if (!localStorage.getItem("userId")) {
+    // alert("Please login to book tickets");
+    window.location.href = "/spotify-login";
+  }
   useEffect(() => {
     if (!socket || !id) return;
 
