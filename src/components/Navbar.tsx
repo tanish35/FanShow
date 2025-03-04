@@ -66,7 +66,7 @@ const Navbar = () => {
       username,
       challenge,
       "Posting",
-      (response) => {
+      async (response) => {
         if (response.success) {
           setIsConnected(true);
           localStorage.setItem("walletConnection", username);
@@ -79,8 +79,10 @@ const Navbar = () => {
             })
           );
 
-          axios.post("/user/login", { username });
-
+          const res = await axios.post("/user/login", { username });
+          console.log(res);
+          // @ts-ignore
+          localStorage.setItem("userId", res.data.user.id);
           toast.success("Connected successfully!");
 
           setIsOpen(false);
