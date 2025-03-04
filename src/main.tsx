@@ -7,6 +7,7 @@ import axios from "axios";
 
 const apiClient2 = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL_2,
+  withCredentials: true,
 });
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.withCredentials = true;
