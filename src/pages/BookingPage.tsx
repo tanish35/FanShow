@@ -306,95 +306,101 @@ const ConcertBooking: React.FC = () => {
             )}
           </div>
 
-          <div className="lg:sticky lg:top-20 h-fit">
-            <Card className="shadow-lg border-t-4 border-t-blue-500">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl">Book Tickets</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                <div>
-                  <label className="text-sm font-medium block mb-2">
-                    Ticket Type
-                  </label>
-                  <Select
-                    value={selectedTicket?.type}
-                    onValueChange={(value) => {
-                      const ticket = event.description.ticketTypes.find(
-                        (t) => t.type === value
-                      );
-                      if (ticket) setSelectedTicket(ticket);
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select ticket type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {event.description.ticketTypes.map((ticket) => (
-                        <SelectItem key={ticket.type} value={ticket.type}>
-                          {ticket.type} - ${ticket.price} ({ticket.available}{" "}
-                          available)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium block mb-2">
-                    Number of Tickets
-                  </label>
-                  <Select
-                    value={ticketCount.toString()}
-                    onValueChange={(value) => setTicketCount(Number(value))}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select quantity" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedTicket && (
-                  <div className="border-t pt-4 mt-4">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-500">
-                        Price per ticket:
-                      </span>
-                      <span>${selectedTicket.price.toFixed(2)}</span>
+          <>
+            {event.ongoing && (
+              <div className="lg:sticky lg:top-20 h-fit">
+                <Card className="shadow-lg border-t-4 border-t-blue-500">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-xl">Book Tickets</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-5">
+                    <div>
+                      <label className="text-sm font-medium block mb-2">
+                        Ticket Type
+                      </label>
+                      <Select
+                        value={selectedTicket?.type}
+                        onValueChange={(value) => {
+                          const ticket = event.description.ticketTypes.find(
+                            (t) => t.type === value
+                          );
+                          if (ticket) setSelectedTicket(ticket);
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select ticket type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {event.description.ticketTypes.map((ticket) => (
+                            <SelectItem key={ticket.type} value={ticket.type}>
+                              {ticket.type} - ${ticket.price} (
+                              {ticket.available} available)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-500">Quantity:</span>
-                      <span>{ticketCount}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-lg font-bold pt-2 border-t mt-2">
-                      <span>Total:</span>
-                      <span>
-                        ${(selectedTicket.price * ticketCount).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                )}
 
-                <Button
-                  className="w-full py-6 text-lg mt-4"
-                  disabled={isProcessing || !selectedTicket}
-                  onClick={handlePayNow}
-                >
-                  {isProcessing ? "Processing..." : "Pay Now"}
-                </Button>
+                    <div>
+                      <label className="text-sm font-medium block mb-2">
+                        Number of Tickets
+                      </label>
+                      <Select
+                        value={ticketCount.toString()}
+                        onValueChange={(value) => setTicketCount(Number(value))}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select quantity" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5].map((num) => (
+                            <SelectItem key={num} value={num.toString()}>
+                              {num}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <p className="text-xs text-center text-gray-500 mt-2">
-                  Secured by Hive blockchain technology
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+                    {selectedTicket && (
+                      <div className="border-t pt-4 mt-4">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-gray-500">
+                            Price per ticket:
+                          </span>
+                          <span>${selectedTicket.price.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-sm text-gray-500">
+                            Quantity:
+                          </span>
+                          <span>{ticketCount}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-lg font-bold pt-2 border-t mt-2">
+                          <span>Total:</span>
+                          <span>
+                            ${(selectedTicket.price * ticketCount).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <Button
+                      className="w-full py-6 text-lg mt-4"
+                      disabled={isProcessing || !selectedTicket}
+                      onClick={handlePayNow}
+                    >
+                      {isProcessing ? "Processing..." : "Pay Now"}
+                    </Button>
+
+                    <p className="text-xs text-center text-gray-500 mt-2">
+                      Secured by Hive blockchain technology
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </>
         </div>
       </div>
     </div>
