@@ -21,6 +21,7 @@ import {
   Music,
   AlertCircle,
 } from "lucide-react";
+import { apiClient2 } from "@/main";
 
 interface TicketType {
   type: string;
@@ -110,11 +111,10 @@ const ConcertBooking: React.FC = () => {
 
   const handleEnterQueue = async () => {
     try {
-      const userId = localStorage.getItem("userId");
-      if (!userId || !id || !event) return;
+      // const userId = localStorage.getItem("userId");
+      if (!id || !event) return;
 
-      const response = await axios.post("/book", {
-        userId,
+      const response = await apiClient2.post("/book", {
         eventId: id,
         artistName: event.artistName,
       });
