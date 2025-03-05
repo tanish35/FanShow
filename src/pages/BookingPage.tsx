@@ -2,7 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { io } from "socket.io-client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -13,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 import {
   Calendar,
   Clock,
@@ -22,6 +29,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { apiClient2 } from "@/main";
+import ScorePopup from "@/components/ScorePopup";
 
 interface TicketType {
   type: string;
@@ -64,6 +72,10 @@ const ConcertBooking: React.FC = () => {
   const [queuePosition, setQueuePosition] = useState<number | null>(null);
   const [isFirstUser, setIsFirstUser] = useState(false);
   const [socket, setSocket] = useState<any>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
+  const [isScorePopupOpen, setIsScorePopupOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const newSocket = io("http://localhost:3001");
@@ -81,9 +93,11 @@ const ConcertBooking: React.FC = () => {
   useEffect(() => {
     if (!socket || !id) return;
 
+    // setLoading(true);
+
     const handleQueueUpdate = (queue: string[]) => {
       const userId = localStorage.getItem("userId");
-      
+
       for (let i = 0; i < queue.length; i += 2) {
         try {
           const entry = JSON.parse(queue[i]);
@@ -94,13 +108,35 @@ const ConcertBooking: React.FC = () => {
           }
         } catch (error) {
           console.error("Error parsing queue entry:", error);
+        } finally {
+          // setLoading(false);
         }
       }
     };
 
-    const handleFirstUserUpdate = (data: { userId: string; eventId: string }) => {
-      if (data.eventId === id && data.userId === localStorage.getItem("userId")) {
+    const handleFirstUserUpdate = (data: {
+      userId: string;
+      eventId: string;
+    }) => {
+      const userId = localStorage.getItem("userId");
+
+      if (data.eventId === id && data.userId === userId) {
         setIsFirstUser(true);
+
+        let remainingTime = 60;
+        const timer = setInterval(() => {
+          remainingTime--;
+          setTimeRemaining(remainingTime);
+
+          if (remainingTime <= 0) {
+            clearInterval(timer);
+            setIsFirstUser(false);
+            setInQueue(false);
+            toast.error("Booking time expired");
+          }
+        }, 1000);
+
+        return () => clearInterval(timer);
       }
     };
 
@@ -115,14 +151,22 @@ const ConcertBooking: React.FC = () => {
 
   const handleEnterQueue = async () => {
     try {
-      // const userId = localStorage.getItem("userId");
       if (!id || !event) return;
+
+      setIsLoading(true);
 
       const response = await apiClient2.post("/book", {
         eventId: id,
         artistName: event.artistName,
+      });
+
+      if (response.data.message === "User has already booked tickets") {
+        toast.error("You have already booked a ticket");
+        return;
       }
-    );
+
+      setScore(response.data.queue[1]);
+      setIsScorePopupOpen(true);
 
       setInQueue(true);
       toast.success("You've been added to the queue!");
@@ -131,6 +175,8 @@ const ConcertBooking: React.FC = () => {
         toast.error(error.response?.data.error || "Failed to join queue");
         if (error.response?.status === 400) setInQueue(true);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -210,8 +256,25 @@ const ConcertBooking: React.FC = () => {
             toast.dismiss(loadingToastId);
 
             if (response.success) {
-              toast.success("Tickets booked successfully!");
-              console.log("Transaction successful:", response);
+              apiClient2
+                .post("/payment-success", {
+                  userId: localStorage.getItem("userId"),
+                  eventId: event.id,
+                })
+                .then((queueResponse) => {
+                  toast.success("Tickets booked successfully!");
+                  console.log("Transaction successful:", response);
+                  console.log("Queue update:", queueResponse.data);
+
+                  setIsFirstUser(false);
+                  setInQueue(false);
+                })
+                .catch((queueError) => {
+                  toast.error(
+                    "Transaction successful, but queue update failed"
+                  );
+                  console.error("Queue update error:", queueError);
+                });
             } else {
               toast.error(
                 "Transaction failed: " + (response.message || "Unknown error")
@@ -236,6 +299,10 @@ const ConcertBooking: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleScorePopupClose = () => {
+    setIsScorePopupOpen(false);
   };
 
   if (loading)
@@ -382,140 +449,163 @@ const ConcertBooking: React.FC = () => {
           </div>
 
           <div className="lg:sticky lg:top-20 h-fit">
-          {isFirstUser ? (
-              <Card className="shadow-lg border-t-4 border-t-blue-500">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-xl">Book Tickets</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                <div>
-                  <label className="text-sm font-medium block mb-2">
-                    Ticket Type
-                  </label>
-                  <Select
-                    value={selectedTicket?.type}
-                    onValueChange={(value) => {
-                      const ticket = event.description.ticketTypes.find(
-                        (t) => t.type === value
-                      );
-                      if (ticket) setSelectedTicket(ticket);
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select ticket type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {event.description.ticketTypes.map((ticket) => (
-                        <SelectItem key={ticket.type} value={ticket.type}>
-                          {ticket.type} - ${ticket.price} (
-                          {ticket.available} available)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium block mb-2">
-                    Number of Tickets
-                  </label>
-                  <Select
-                    value={ticketCount.toString()}
-                    onValueChange={(value) => setTicketCount(Number(value))}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select quantity" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5].map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {selectedTicket && (
-                  <div className="border-t pt-4 mt-4">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-500">
-                        Price per ticket:
-                      </span>
-                      <span>${selectedTicket.price.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-500">
-                        Quantity:
-                      </span>
-                      <span>{ticketCount}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-lg font-bold pt-2 border-t mt-2">
-                      <span>Total:</span>
-                      <span>
-                        ${(selectedTicket.price * ticketCount).toFixed(2)}
-                      </span>
+            {isFirstUser && timeRemaining !== null ? (
+              <Card className="shadow-lg border-t-4 border-t-red-500">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-xl">Book Tickets</CardTitle>
+                  <CardDescription className="text-sm text-red-500">
+                    Time Remaining to Complete Booking
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  <div className="flex justify-center items-center">
+                    <div className="text-5xl font-bold text-red-500">
+                      {timeRemaining}
+                      <span className="text-2xl ml-2">seconds</span>
                     </div>
                   </div>
-                )}
 
-                <Button
-                  className="w-full py-6 text-lg mt-4"
-                  disabled={isProcessing || !selectedTicket}
-                  onClick={handlePayNow}
-                >
-                  {isProcessing ? "Processing..." : "Pay Now"}
-                </Button>
+                  <div>
+                    <label className="text-sm font-medium block mb-2">
+                      Ticket Type
+                    </label>
+                    <Select
+                      value={selectedTicket?.type}
+                      onValueChange={(value) => {
+                        const ticket = event.description.ticketTypes.find(
+                          (t) => t.type === value
+                        );
+                        if (ticket) setSelectedTicket(ticket);
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select ticket type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {event.description.ticketTypes.map((ticket) => (
+                          <SelectItem key={ticket.type} value={ticket.type}>
+                            {ticket.type} - ${ticket.price} ({ticket.available}{" "}
+                            available)
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <p className="text-xs text-center text-gray-500 mt-2">
-                  Secured by Hive blockchain technology
-                </p>
-              </CardContent>
-            </Card>
-            ) : (
-              <Card className="shadow-lg border-t-4 border-t-blue-500">
-                <CardHeader>
-                  <CardTitle className="text-xl">
-                    {inQueue ? "Queue Status" : "Join Queue"}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {inQueue ? (
-                    <>
-                      <div className="text-center">
-                        <p className="text-2xl font-bold mb-2">
-                          Position in Queue
-                        </p>
-                        <div className="text-4xl text-blue-500">
-                          #{queuePosition}
-                        </div>
-                        <p className="text-sm text-gray-500 mt-2">
-                          Updates every 5 minutes
-                        </p>
+                  <div>
+                    <label className="text-sm font-medium block mb-2">
+                      Number of Tickets
+                    </label>
+                    <Select
+                      value={ticketCount.toString()}
+                      onValueChange={(value) => setTicketCount(Number(value))}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select quantity" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {selectedTicket && (
+                    <div className="border-t pt-4 mt-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm text-gray-500">
+                          Price per ticket:
+                        </span>
+                        <span>${selectedTicket.price.toFixed(2)}</span>
                       </div>
-                      <div className="text-center text-sm text-gray-500">
-                        When you reach position #1, the booking form will appear
-                        automatically
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-sm text-gray-500">Quantity:</span>
+                        <span>{ticketCount}</span>
                       </div>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        className="w-full py-6 text-lg"
-                        onClick={handleEnterQueue}
-                        disabled={!event?.ongoing}
-                      >
-                        Enter Queue
-                      </Button>
-                      {!event?.ongoing && (
-                        <p className="text-sm text-red-500 text-center mt-2">
-                          Ticket sales have not started yet
-                        </p>
-                      )}
-                    </>
+                      <div className="flex justify-between items-center text-lg font-bold pt-2 border-t mt-2">
+                        <span>Total:</span>
+                        <span>
+                          ${(selectedTicket.price * ticketCount).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   )}
+
+                  <Button
+                    className="w-full py-6 text-lg mt-4"
+                    disabled={isProcessing || !selectedTicket}
+                    onClick={handlePayNow}
+                  >
+                    {isProcessing ? "Processing..." : "Pay Now"}
+                  </Button>
+
+                  <p className="text-xs text-center text-gray-500 mt-2">
+                    Secured by Hive blockchain technology
+                  </p>
                 </CardContent>
               </Card>
+            ) : (
+              <>
+                <Card className="shadow-lg border-t-4 border-t-blue-500">
+                  <CardHeader>
+                    <CardTitle className="text-xl">
+                      {inQueue ? "Queue Status" : "Join Queue"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {inQueue ? (
+                      <>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold mb-2">
+                            Position in Queue
+                          </p>
+                          <div className="text-4xl text-blue-500">
+                            #{queuePosition}
+                          </div>
+                          <p className="text-sm text-gray-500 mt-2">
+                            Updates every 5 minutes
+                          </p>
+                        </div>
+                        <div className="text-center text-sm text-gray-500">
+                          When you reach position #1, the booking form will
+                          appear automatically
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          className="w-full py-6 text-lg"
+                          onClick={handleEnterQueue}
+                          disabled={!event?.ongoing || isLoading}
+                        >
+                          {isLoading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Joining Queue...
+                            </>
+                          ) : (
+                            "Enter Queue"
+                          )}
+                        </Button>
+                        {!event?.ongoing && (
+                          <p className="text-sm text-red-500 text-center mt-2">
+                            Ticket sales have not started yet
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <ScorePopup
+                  score={score}
+                  isOpen={isScorePopupOpen}
+                  onClose={handleScorePopupClose}
+                />
+              </>
             )}
           </div>
         </div>

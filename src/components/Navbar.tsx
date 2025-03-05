@@ -43,7 +43,7 @@ const Navbar = () => {
     }
   }, []);
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     setIsLoading(true);
 
     if (!window.hive_keychain) {
@@ -79,13 +79,14 @@ const Navbar = () => {
             })
           );
 
-          const res = await axios.post("/user/login", { username });
-          console.log(res);
-          // @ts-ignore
-          localStorage.setItem("userId", res.data.user.id);
-          toast.success("Connected successfully!");
-
-          setIsOpen(false);
+          try {
+            const response1 = await axios.post("/user/login", { username });
+            localStorage.setItem("userId", response1.data.user.id);
+            toast.success("Connected successfully!");
+            setIsOpen(false);
+          } catch (error) {
+            toast.error("Login request failed. Please try again.");
+          }
         } else {
           toast.error("Authentication failed. Please try again.");
         }
