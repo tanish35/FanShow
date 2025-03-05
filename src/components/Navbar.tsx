@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { User } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
-import { a } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 
 declare global {
   interface Window {
