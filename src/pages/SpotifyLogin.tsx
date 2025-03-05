@@ -14,6 +14,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { Loader2 } from "lucide-react";
 
 interface UserProfile {
   name: string;
@@ -24,6 +25,7 @@ interface UserProfile {
 export default function SpotifyLoginPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     checkLoginStatus();
@@ -44,6 +46,7 @@ export default function SpotifyLoginPage() {
 
   const handleLogin = async () => {
     try {
+      setLoading(true);
       const response = await axios.get("/spotify/login");
       window.location.href = response.data.authUrl;
     } catch (error) {
@@ -53,16 +56,19 @@ export default function SpotifyLoginPage() {
 
   const handleDisconnect = async () => {
     try {
+      setLoading(true);
       await axios.post("/spotify/disconnect");
       setUserProfile(null);
     } catch (error) {
       console.error("Error disconnecting Spotify:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-background to-muted/50 p-4">
-      <div className="w-full max-w-md">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-background to-muted/50 p-4">
+      <div className="min w-full max-w-md">
         <div className="mb-8 flex items-center justify-center space-x-2">
           <Music className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold">Music Connect</h1>
@@ -119,7 +125,11 @@ export default function SpotifyLoginPage() {
                     className="w-full border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
                     onClick={handleDisconnect}
                   >
-                    Disconnect Account
+                    {loading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      "Disconnect Spotify"
+                    )}
                   </Button>
                 </div>
               </div>
@@ -133,7 +143,11 @@ export default function SpotifyLoginPage() {
                   className="w-full bg-[#1DB954] hover:bg-[#1AA34A] text-white font-medium"
                   onClick={handleLogin}
                 >
-                  Connect with Spotify
+                  {loading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    "Connect with Spotify"
+                  )}
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">

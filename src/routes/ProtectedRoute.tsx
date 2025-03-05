@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [userDetails, loadingUser] = useUser();
+  const [progress, setProgress] = React.useState(13);
   const location = useLocation();
 
   useEffect(() => {
@@ -14,10 +15,24 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
   }, [loadingUser, userDetails]);
 
+  useEffect(() => {
+    let currentProgress = 0;
+    const interval = setInterval(() => {
+      currentProgress += 1;
+      setProgress(currentProgress);
+
+      if (currentProgress >= 99) {
+        clearInterval(interval);
+      }
+    }, 10);
+
+    return () => clearInterval(interval);
+  }, []);
+
   if (loadingUser) {
     return (
       <div className="flex flex-col items-center justify-center h-screen">
-        <Progress value={50} className="w-1/2" />
+        <Progress value={progress} className="w-1/2" />
         <p className="mt-4 text-sm text-gray-500">
           Checking user authentication...
         </p>

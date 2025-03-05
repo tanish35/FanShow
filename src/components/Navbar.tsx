@@ -117,6 +117,7 @@ const Navbar = () => {
     <header className="border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-md z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
+          {/* <img src="/logo.svg" alt="FanShow Logo" className="h-8 w-8" />{" "} */}
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
             FanShow
           </div>
