@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { User } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import { a } from "node_modules/framer-motion/dist/types.d-6pKw1mTI";
 
 declare global {
   interface Window {
@@ -34,6 +36,12 @@ const Navbar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+
+  const navigate = useNavigate();
+
+  const handleSpotifyLogin = () => {
+    navigate("/spotify");
+  };
 
   useEffect(() => {
     const storedConnection = localStorage.getItem("walletConnection");
@@ -95,11 +103,12 @@ const Navbar = () => {
     );
   };
 
-  const handleDisconnect = () => {
+  const handleDisconnect = async () => {
     setIsConnected(false);
     setUsername("");
     localStorage.removeItem("walletConnection");
     localStorage.removeItem("walletAuth");
+    await axios.get("/user/logout");
     toast.success("Disconnected successfully!");
   };
 
@@ -138,9 +147,12 @@ const Navbar = () => {
         <div>
           {isConnected ? (
             <div className="flex items-center gap-2">
-              <div className="text-sm font-medium text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+              <Button
+                onClick={handleSpotifyLogin}
+                className="text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full"
+              >
                 {username}
-              </div>
+              </Button>
               <Button
                 onClick={handleDisconnect}
                 variant="ghost"
