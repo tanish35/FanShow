@@ -87,53 +87,74 @@ const ConcertBooking: React.FC = () => {
   }, []);
 
   if (!localStorage.getItem("userId")) {
-    // alert("Please login to book tickets");
     window.location.href = "/spotify-login";
   }
+
   useEffect(() => {
     if (!socket || !id) return;
-
-    // setLoading(true);
 
     const handleQueueUpdate = (queue: string[]) => {
       const userId = localStorage.getItem("userId");
 
+      let foundInQueue = false;
       for (let i = 0; i < queue.length; i += 2) {
         try {
           const entry = JSON.parse(queue[i]);
           if (entry.eventId === id && entry.userId === userId) {
             setQueuePosition(i / 2 + 1);
             setInQueue(true);
+            foundInQueue = true;
             break;
           }
         } catch (error) {
           console.error("Error parsing queue entry:", error);
-        } finally {
-          // setLoading(false);
         }
+      }
+
+      if (!foundInQueue && !isFirstUser) {
+        setInQueue(false);
       }
     };
 
     const handleFirstUserUpdate = (data: {
       userId: string;
       eventId: string;
+      expiresAt?: number;
     }) => {
       const userId = localStorage.getItem("userId");
 
       if (data.eventId === id && data.userId === userId) {
         setIsFirstUser(true);
+        setInQueue(true);
 
-        let remainingTime = 60;
+        const expiresAt = data.expiresAt || Date.now() + 60000;
+        const remainingTime = Math.max(
+          0,
+          Math.floor((expiresAt - Date.now()) / 1000)
+        );
+
+        localStorage.setItem(
+          `bookingSession:${id}`,
+          JSON.stringify({
+            eventId: id,
+            expiresAt: expiresAt,
+          })
+        );
+
+        setTimeRemaining(remainingTime);
+
         const timer = setInterval(() => {
-          remainingTime--;
-          setTimeRemaining(remainingTime);
-
-          if (remainingTime <= 0) {
-            clearInterval(timer);
-            setIsFirstUser(false);
-            setInQueue(false);
-            toast.error("Booking time expired");
-          }
+          setTimeRemaining((prev) => {
+            const newTime = prev! - 1;
+            if (newTime <= 0) {
+              clearInterval(timer);
+              setIsFirstUser(false);
+              setInQueue(false);
+              localStorage.removeItem(`bookingSession:${id}`);
+              toast.error("Booking time expired");
+            }
+            return newTime;
+          });
         }, 1000);
 
         return () => clearInterval(timer);
@@ -142,10 +163,61 @@ const ConcertBooking: React.FC = () => {
 
     socket.on("queueUpdate", handleQueueUpdate);
     socket.on("firstUserUpdate", handleFirstUserUpdate);
+    const storedSession = localStorage.getItem(`bookingSession:${id}`);
+    if (storedSession) {
+      try {
+        const { expiresAt } = JSON.parse(storedSession);
+        const currentTime = Date.now();
+        if (expiresAt > currentTime) {
+          socket.emit("checkBookingStatus", {
+            userId: localStorage.getItem("userId"),
+            eventId: id,
+          });
+        } else {
+          localStorage.removeItem(`bookingSession:${id}`);
+        }
+      } catch (error) {
+        console.error("Error parsing stored session:", error);
+        localStorage.removeItem(`bookingSession:${id}`);
+      }
+    } else {
+      socket.emit("checkBookingStatus", {
+        userId: localStorage.getItem("userId"),
+        eventId: id,
+      });
+    }
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const storedSession = localStorage.getItem(`bookingSession:${id}`);
+        if (storedSession) {
+          try {
+            const { expiresAt } = JSON.parse(storedSession);
+            if (expiresAt > Date.now()) {
+              // We still have time, request an update from the server
+              socket.emit("requestFirstUserUpdate", {
+                userId: localStorage.getItem("userId"),
+                eventId: id,
+              });
+            } else {
+              // Session expired, remove it
+              localStorage.removeItem(`bookingSession:${id}`);
+              setIsFirstUser(false);
+              setInQueue(false);
+            }
+          } catch (error) {
+            console.error("Error parsing stored session:", error);
+            localStorage.removeItem(`bookingSession:${id}`);
+          }
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       socket.off("queueUpdate", handleQueueUpdate);
       socket.off("firstUserUpdate", handleFirstUserUpdate);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [socket, id]);
 
@@ -154,6 +226,21 @@ const ConcertBooking: React.FC = () => {
       if (!id || !event) return;
 
       setIsLoading(true);
+
+      // Already in first position with time left?
+      const storedSession = localStorage.getItem(`bookingSession:${id}`);
+      if (storedSession) {
+        try {
+          const { expiresAt } = JSON.parse(storedSession);
+          if (expiresAt > Date.now()) {
+            // We're already in the booking process
+            setIsLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.error("Error parsing stored session:", error);
+        }
+      }
 
       const response = await apiClient2.post("/book", {
         eventId: id,
