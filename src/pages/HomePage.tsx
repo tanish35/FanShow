@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useTransform } from "framer-motion";
 import {
   Music,
   Ticket,
@@ -22,23 +22,31 @@ import { MusicVisualizer } from "@/components/music-visualizer";
 import { ArtistCard } from "@/components/artist-card";
 import { SpotifyLoginButton } from "@/components/spotify-login-button";
 // import { ThemeToggle } from "@/components/theme-toggle";
+import { useMotionValue, useSpring } from "framer-motion";
 
 export default function HomePage() {
   const [isClient, setIsClient] = useState(false);
   const heroRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
+  // const { scrollYProgress } = useScroll({
+  //   target: heroRef,
+  //   offset: ["start start", "end start"],
+  // });
+
+  const scrollYProgress = useMotionValue(0);
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
   });
 
-  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.8]);
+  const opacity = useTransform(smoothProgress, [0, 1], [1, 0]);
+  const scale = useTransform(smoothProgress, [0, 1], [1, 0.8]);
 
   useEffect(() => {
     setIsClient(true);
-    // Set theme to light mode on page load
     document.documentElement.classList.remove("dark");
     document.documentElement.classList.add("light");
+    scrollYProgress.set(0);
   }, []);
 
   // Mock data for featured concerts
@@ -90,10 +98,8 @@ export default function HomePage() {
 
         <motion.div
           className="container relative z-10 px-4 text-center"
+          initial={{ opacity: 1, scale: 1 }}
           style={{ opacity, scale }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
         >
           <motion.div
             initial={{ opacity: 0 }}
