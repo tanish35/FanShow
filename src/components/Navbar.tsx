@@ -1,7 +1,10 @@
+"use client";
+
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { Menu, X, User } from "lucide-react";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,12 +12,10 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { User } from "lucide-react";
+} from "./ui/dialog";
+import { Input } from "./ui/input";
 import { toast } from "sonner";
 import axios from "axios";
-// import { useTheme } from "@/lib/ThemeProvider";
 
 declare global {
   interface Window {
@@ -30,26 +31,28 @@ declare global {
   }
 }
 
-const Navbar = () => {
+export function Navigation() {
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  // const { theme, toggleTheme } = useTheme(); // Use the theme context
-
-  const navigate = useNavigate();
-
-  const handleSpotifyLogin = () => {
-    navigate("/spotify");
-  };
 
   useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+
     const storedConnection = localStorage.getItem("walletConnection");
     if (storedConnection) {
       setIsConnected(true);
       setUsername(storedConnection);
     }
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleConnect = async () => {
@@ -115,114 +118,170 @@ const Navbar = () => {
 
   const isActive = (path: string) => location.pathname === path;
 
+  const navItems = [
+    { path: "/", label: "Home" },
+    { path: "/artist", label: "Artist" },
+    { path: "/about", label: "About" },
+  ];
+
   return (
-    <header className="border-b border-gray-100 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
-            FanShow
-          </div>
-        </Link>
+    <>
+      <motion.nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm py-3" : "bg-transparent py-6"
+        }`}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="container mx-auto px-4 flex justify-between items-center">
+        <Link to="/" className="text-2xl font-bold">
+        <motion.div
+      className="text-2xl font-bold bg-clip-text text-transparent transition-all duration-300"
+      style={{
+        backgroundImage: isScrolled
+          ? "linear-gradient(to right, #3b82f6, #8b5cf6)" // Blue to Violet
+          : "linear-gradient(to right, rgba(255,255,255,0.9), rgba(230,230,230,0.9))", // Whitish Gradient
+      }}
+    >
+      FanShow
+    </motion.div>
+    </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
-          {[
-            { path: "/", label: "Home" },
-            { path: "/artist", label: "Artist" },
-            { path: "/about", label: "About" },
-          ].map((link) => (
-            <Link
-              key={link.path}
-              to={link.path}
-              className={`text-sm font-medium transition-colors hover:text-blue-600 relative py-1
-                ${
-                  isActive(link.path)
+          <div className="hidden md:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`text-sm font-medium transition-colors hover:text-blue-600 relative py-1 ${
+                  isActive(item.path)
                     ? "text-blue-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600"
-                    : "text-gray-600 dark:text-gray-300"
+                    : isScrolled
+                    ? "text-white hover:text-blue-600"
+                    : "text-white hover:text-white/80"
                 }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="flex items-center gap-2">
-          {/* Theme Toggle Button */}
-          {/* <Button
-            onClick={toggleTheme}
-            variant="ghost"
-            size="sm"
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
-          >
-            {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
-          </Button> */}
-
-          {isConnected ? (
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={handleSpotifyLogin}
-                className="text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-1 rounded-full"
               >
-                {username}
-              </Button>
-              <Button
-                onClick={handleDisconnect}
-                variant="ghost"
-                size="sm"
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
-              >
-                Disconnect
-              </Button>
-            </div>
-          ) : (
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-              <DialogTrigger asChild>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+
+          <div className="hidden md:flex items-center gap-2">
+            {isConnected ? (
+              <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  onClick={() => setIsOpen(true)}
+                  className="text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-1 rounded-full"
                 >
-                  <User
-                    size={16}
-                    className="text-gray-600 dark:text-gray-300"
-                  />
-                  <span>Connect</span>
+                  {username}
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px] rounded-lg">
-                <DialogHeader>
-                  <DialogTitle className="text-center text-xl dark:text-gray-100">
-                    Connect to Hive Keychain
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="py-4 space-y-4">
-                  <Input
-                    placeholder="Enter Hive username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="focus-visible:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
-                  />
-                  <p className="text-sm text-muted-foreground dark:text-gray-400">
-                    You need the Hive Keychain browser extension to connect.
-                    Your Posting key will be used to verify your identity.
-                  </p>
-                </div>
-                <DialogFooter className="flex-col sm:flex-row sm:justify-end">
+                <Button
+                  onClick={handleDisconnect}
+                  variant="ghost"
+                  size="sm"
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+                >
+                  Disconnect
+                </Button>
+              </div>
+            ) : (
+              <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <DialogTrigger asChild>
                   <Button
-                    onClick={handleConnect}
-                    className="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
-                    disabled={isLoading}
+                    variant="outline"
+                    size="sm"
+                    className={`flex items-center gap-1 ${
+                      isScrolled
+                        ? "border border-gray-200 bg-white text-gray hover:bg-gray-50"
+                        : "border-white/20 bg-white/10 text-white hover:bg-white/20"
+                    }`}
+                    onClick={() => setIsOpen(true)}
                   >
-                    {isLoading ? "Connecting..." : "Connect Wallet"}
+                    <User size={16} className={isScrolled ? "text-gray-600" : "text-white"} />
+                    <span>Connect</span>
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
-        </div>
-      </div>
-    </header>
-  );
-};
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px] rounded-lg">
+                  <DialogHeader>
+                    <DialogTitle className="text-center text-xl dark:text-gray-100">
+                      Connect to Hive Keychain
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="py-4 space-y-4">
+                    <Input
+                      placeholder="Enter Hive username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="focus-visible:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
+                    />
+                    <p className="text-sm text-muted-foreground dark:text-gray-400">
+                      You need the Hive Keychain browser extension to connect.
+                      Your Posting key will be used to verify your identity.
+                    </p>
+                  </div>
+                  <DialogFooter className="flex-col sm:flex-row sm:justify-end">
+                    <Button
+                      onClick={handleConnect}
+                      className="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Connecting..." : "Connect Wallet"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
 
-export default Navbar;
+          <button
+            className="md:hidden text-2xl"
+            onClick={() => setIsMobileMenuOpen(true)}
+          >
+            <Menu className={isScrolled ? "text-gray-800" : "text-white"} />
+          </button>
+        </div>
+      </motion.nav>
+
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            className="fixed inset-0 bg-purple-900 z-50 flex flex-col"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="container mx-auto px-4 py-6 flex justify-between items-center">
+              <Link to="/" className="text-2xl font-bold text-white">
+                FanShow
+              </Link>
+              <button
+                className="text-2xl text-white"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <X />
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center justify-center flex-1 gap-8">
+              {navItems.map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Link
+                    to={item.path}
+                    className="text-xl font-medium text-white hover:text-white/80"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}

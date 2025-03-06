@@ -1,51 +1,18 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Music } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
+import { Music } from "lucide-react"
 
 interface SpotifyLoginButtonProps {
-  size?: "default" | "lg";
+  size?: "default" | "sm" | "lg"
 }
 
-export function SpotifyLoginButton({
-  size = "default",
-}: SpotifyLoginButtonProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleLogin = async () => {
-    // This would be replaced with your actual Spotify login logic
-    console.log("Initiating Spotify login");
-    // window.location.href = "/api/auth/spotify"
-  };
-
+export function SpotifyLoginButton({ size = "default" }: SpotifyLoginButtonProps) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.98 }}
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
-    >
-      <Button
-        onClick={handleLogin}
-        className={`relative overflow-hidden bg-[#1DB954] hover:bg-[#1AA34A] text-white font-medium ${
-          size === "lg" ? "text-lg py-6 px-8" : ""
-        }`}
-      >
-        <div className="relative z-10 flex items-center gap-2">
-          <Music className="h-5 w-5" />
-          Connect with Spotify
-        </div>
-
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-[#1DB954]/80 to-[#1DB954]"
-          initial={{ x: "-100%" }}
-          animate={{ x: isHovered ? "0%" : "-100%" }}
-          transition={{ duration: 0.4 }}
-        />
-      </Button>
-    </motion.div>
-  );
+    <Button className="bg-[#1DB954] hover:bg-[#1DB954]/90 text-white w-full sm:w-auto rounded-none px-8" size={size}>
+      <Music className="mr-2 h-4 w-4" />
+      Connect with Spotify
+    </Button>
+  )
 }
+
