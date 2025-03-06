@@ -4,6 +4,7 @@ import "./index.css";
 import App from "./App.tsx";
 import { Toaster } from "@/components/ui/sonner";
 import axios from "axios";
+import { ThemeProvider } from "@/lib/ThemeProvider";
 
 const apiClient2 = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL_2,
@@ -14,7 +15,9 @@ axios.defaults.withCredentials = true;
 export { apiClient2 };
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
     <Toaster richColors closeButton />
   </StrictMode>
 );

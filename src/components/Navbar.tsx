@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { User } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+// import { useTheme } from "@/lib/ThemeProvider";
 
 declare global {
   interface Window {
@@ -35,6 +36,7 @@ const Navbar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  // const { theme, toggleTheme } = useTheme(); // Use the theme context
 
   const navigate = useNavigate();
 
@@ -114,10 +116,9 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-md z-50">
+    <header className="border-b border-gray-100 sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md z-50">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          {/* <img src="/logo.svg" alt="FanShow Logo" className="h-8 w-8" />{" "} */}
           <div className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-violet-500 bg-clip-text text-transparent">
             FanShow
           </div>
@@ -136,7 +137,7 @@ const Navbar = () => {
                 ${
                   isActive(link.path)
                     ? "text-blue-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600"
-                    : "text-gray-600"
+                    : "text-gray-600 dark:text-gray-300"
                 }`}
             >
               {link.label}
@@ -144,12 +145,22 @@ const Navbar = () => {
           ))}
         </nav>
 
-        <div>
+        <div className="flex items-center gap-2">
+          {/* Theme Toggle Button */}
+          {/* <Button
+            onClick={toggleTheme}
+            variant="ghost"
+            size="sm"
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
+          >
+            {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+          </Button> */}
+
           {isConnected ? (
             <div className="flex items-center gap-2">
               <Button
                 onClick={handleSpotifyLogin}
-                className="text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full"
+                className="text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-3 py-1 rounded-full"
               >
                 {username}
               </Button>
@@ -157,7 +168,7 @@ const Navbar = () => {
                 onClick={handleDisconnect}
                 variant="ghost"
                 size="sm"
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
               >
                 Disconnect
               </Button>
@@ -168,16 +179,19 @@ const Navbar = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex items-center gap-1 border border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  className="flex items-center gap-1 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                   onClick={() => setIsOpen(true)}
                 >
-                  <User size={16} className="text-gray-600" />
+                  <User
+                    size={16}
+                    className="text-gray-600 dark:text-gray-300"
+                  />
                   <span>Connect</span>
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px] rounded-lg">
                 <DialogHeader>
-                  <DialogTitle className="text-center text-xl">
+                  <DialogTitle className="text-center text-xl dark:text-gray-100">
                     Connect to Hive Keychain
                   </DialogTitle>
                 </DialogHeader>
@@ -186,9 +200,9 @@ const Navbar = () => {
                     placeholder="Enter Hive username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="focus-visible:ring-blue-500"
+                    className="focus-visible:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
                   />
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground dark:text-gray-400">
                     You need the Hive Keychain browser extension to connect.
                     Your Posting key will be used to verify your identity.
                   </p>
@@ -196,7 +210,7 @@ const Navbar = () => {
                 <DialogFooter className="flex-col sm:flex-row sm:justify-end">
                   <Button
                     onClick={handleConnect}
-                    className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-200"
+                    className="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
                     disabled={isLoading}
                   >
                     {isLoading ? "Connecting..." : "Connect Wallet"}
