@@ -8,6 +8,34 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { SpotifyLoginButton } from "@/components/spotify-login-button"
 import { CircularText } from "@/components/circular-text"
+import axios from "axios"
+
+
+interface Concert {
+  id : string;
+  name: string;
+  liveAt: string; // ISO date string
+  artistName: string;
+  concertName: string;
+  description: {
+    venue?: {
+      name?: string;
+      location?: string;
+      capacity?: number;
+    };
+    date?: string; // ISO date string
+    duration?: string;
+    image?: string;
+    openingAct?: string;
+    ticketTypes?: {
+      type: string;
+      price: number;
+      available: number;
+    }[];
+    ageRestriction?: string;
+    additionalInfo?: string;
+  };
+}
 
 
 export default function HomePage() {
@@ -18,6 +46,9 @@ export default function HomePage() {
     target: carouselRef,
     offset: ["start start", "end start"],
   })
+  const [isLoading, setIsLoading] = useState(false)
+  const [showingAll, setShowingAll] = useState(false)
+  const [allConcerts, setAllConcerts] = useState<Concert[]>([])
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
   const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95])
@@ -104,9 +135,17 @@ export default function HomePage() {
     },
   ]
 
+  async function fetchConcerts() {
+    setIsLoading(true)
+    const res = await axios.get('/event/getEvents');
+    // @ts-ignore
+    setAllConcerts(res.data);
+    setIsLoading(false);
+  }
+
   useEffect(() => {
     setIsClient(true)
-
+    fetchConcerts()
     // Auto-advance carousel
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % featuredConcerts.length)
@@ -126,7 +165,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen items-center bg-white text-gray-800 overflow-hidden">
       {/* Navigation */}
-      <Navigation />
+      {/* <Navigation /> */}
 
       {/* Full-screen Carousel */}
       <section ref={carouselRef} className="relative h-screen w-full overflow-hidden">
@@ -243,6 +282,11 @@ export default function HomePage() {
       </section>
 
       <section className="py-20 bg-white justify-center items-center flex">
+        {isLoading ? (
+          <div className="text-center">
+            <Image className="h-16 w-16 animate-spin text-purple-500" />
+          </div>
+        ) : (
   <div className="container px-4 items-center justify-center">
     <div className="text-center mb-16">
       <Badge variant="outline" className="mb-4 border-purple-500 text-purple-700 bg-purple-50">
@@ -255,63 +299,62 @@ export default function HomePage() {
     </div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {featuredConcerts.map((concert, index) => (
-        <motion.div
-          key={concert.id}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: index * 0.1, duration: 0.5 }}
-          viewport={{ once: true }}
-          className="group relative"
-        >
-          <Card className="bg-white border-gray-200 shadow-sm overflow-hidden h-full transition-all hover:shadow-lg">
-            <div className="relative h-64 overflow-hidden">
-              <img
-                src={concert.image}
-                alt={concert.artist}
-                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <Badge className="absolute top-4 left-4 bg-white text-purple-700 hover:bg-white">
-                {concert.affinity}% Affinity
-              </Badge>
-            </div>
-            
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-3 text-gray-500">
-                <Calendar className="h-5 w-5" />
-                <span className="text-sm">{concert.date}</span>
-              </div>
-              <h3 className="text-xl font-bold mb-2 text-gray-800">{concert.artist}</h3>
-              <p className="text-gray-600 mb-4 line-clamp-2">{concert.tagline}</p>
-              
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                <MapPin className="h-5 w-5" />
-                <span>{concert.venue}, {concert.city}</span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <Button
-                  asChild
-                  variant="outline"
-                  className="border-purple-500 text-purple-700 hover:bg-purple-50"
+                        {allConcerts && allConcerts.length > 0 ? (
+              allConcerts.map((concert, index) => (
+                <motion.div
+                  key={concert.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1, duration: 0.5 }}
+                  viewport={{ once: true }}
+                  className="group relative"
                 >
-                  <Link to={concert.link}>
-                    View Event
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-      ))}
-      <Link to={'/'} className="flex justify-center items-center">
-                    View All
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  <Card className="bg-white border-gray-200 shadow-sm overflow-hidden h-full transition-all hover:shadow-lg">
+                    <div className="relative h-64 overflow-hidden">
+                      <img
+                        src={concert.description.image || "/placeholder.svg"}
+                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      {/* <Badge className="absolute top-4 left-4 bg-white text-purple-700 hover:bg-white">
+                        {concert.affinity}% Affinity
+                      </Badge> */}
+                    </div>
+                    
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-2 mb-3 text-gray-500">
+                        <Calendar className="h-5 w-5" />
+                        <span className="text-sm">{concert.description.date}</span>
+                      </div>
+                      <h3 className="text-xl font-bold mb-2 text-gray-800">{concert.name}</h3>
+                      
+                      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                        <MapPin className="h-5 w-5" />
+                        <span>{concert.description.venue?.name}</span>
+                      </div>
+            
+                      <div className="flex justify-between items-center">
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="border-purple-500 text-purple-700 hover:bg-purple-50"
+                        >
+                          <Link to={`/booking/${concert.id}`}>
+                            View Event
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            ) : (
+              <div>No concerts available</div>
+            )}
     </div>
   </div>
+        )}
 </section>
 
 
@@ -402,7 +445,7 @@ export default function HomePage() {
                   Connect your Spotify account now and start building your artist affinity score for upcoming concerts.
                 </p>
               </div>
-              <Link href="/spotify">
+              <Link to={'/spotify'}>
                 <SpotifyLoginButton size="lg" />
               </Link>
             </div>

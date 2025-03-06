@@ -155,7 +155,7 @@ export function Navigation() {
                 to={item.path}
                 className={`text-sm font-medium transition-colors hover:text-blue-600 relative py-1 ${
                   isActive(item.path)
-                    ? "text-blue-600 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600"
+                    ? "text-white after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-blue-600"
                     : isScrolled
                     ? "text-white hover:text-blue-600"
                     : "text-white hover:text-white/80"

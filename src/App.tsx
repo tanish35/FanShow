@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // import { Toaster } from "sonner";
 import "./App.css";
-import Navbar from "./components/Navbar";
+import {Navigation} from "./components/Navbar";
 import ArtistDetailsPage from "./pages/ArtistDetails";
 import ConcertBooking from "./pages/BookingPage";
 import SpotifyLogin from "./pages/SpotifyLogin";
@@ -17,7 +17,7 @@ function App() {
   return (
     <Router>
       <div>
-        {/* <Navbar /> */}
+        <Navigation />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<About />} />
