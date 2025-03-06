@@ -10,6 +10,7 @@ const ProtectedSpotifyRoute = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
 
   useEffect(() => {
+    if (!loadingUser) console.log(userDetails);
     if (!loadingUser && (!userDetails || !userDetails.spotifyId)) {
       console.log(userDetails);
       toast.error("Please connect your Spotify account to continue.");
