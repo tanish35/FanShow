@@ -15,6 +15,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface UserProfile {
   name: string;
@@ -149,6 +151,16 @@ export default function SpotifyLoginPage() {
                     "Connect with Spotify"
                   )}
                 </Button>
+
+                <Alert variant="destructive" className="mt-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Warning</AlertTitle>
+                  <AlertDescription>
+                    Before adding, ensure that you have been added to Spotify's
+                    API whitelist. If you have not been added, please contact
+                    tanishmajumdar2912@gmail.com before trying to log in.
+                  </AlertDescription>
+                </Alert>
 
                 <p className="text-xs text-center text-muted-foreground">
                   By connecting, you agree to share your Spotify profile
