@@ -77,8 +77,10 @@ const ConcertBooking: React.FC = () => {
   const [isScorePopupOpen, setIsScorePopupOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL;
+
   useEffect(() => {
-    const newSocket = io("http://localhost:3001");
+    const newSocket = io(WEBSOCKET_URL);
     setSocket(newSocket);
 
     return () => {
