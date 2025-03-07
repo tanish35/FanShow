@@ -343,10 +343,13 @@ const ConcertBooking: React.FC = () => {
             toast.dismiss(loadingToastId);
 
             if (response.success) {
+              // console.log("Transaction successful:", response);
+              localStorage.removeItem(`bookingSession:${id}`);
               apiClient2
                 .post("/payment-success", {
                   userId: localStorage.getItem("userId"),
                   eventId: event.id,
+                  ticketId: response.result.id,
                 })
                 .then((queueResponse) => {
                   toast.success("Tickets booked successfully!");
@@ -355,17 +358,23 @@ const ConcertBooking: React.FC = () => {
 
                   setIsFirstUser(false);
                   setInQueue(false);
+                  // setInQueue(false);
                 })
                 .catch((queueError) => {
                   toast.error(
                     "Transaction successful, but queue update failed"
                   );
                   console.error("Queue update error:", queueError);
+                  setIsFirstUser(false);
+                  setInQueue(false);
+                  localStorage.removeItem(`bookingSession:${id}`);
                 });
             } else {
+              localStorage.removeItem(`bookingSession:${id}`);
               toast.error(
                 "Transaction failed: " + (response.message || "Unknown error")
               );
+              setInQueue(false);
               console.log("Transaction failed:", response);
             }
 
