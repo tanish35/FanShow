@@ -85,7 +85,7 @@ export function Navigation() {
         >
           <div className="container mx-auto px-4 py-6 flex justify-between items-center">
             <Link href="/" className="text-2xl font-bold text-white">
-              FanQueue
+              FanShow
             </Link>
             <button className="text-2xl text-white" onClick={() => setIsMobileMenuOpen(false)}>
               <X />

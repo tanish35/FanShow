@@ -71,7 +71,7 @@ export default function HomePage() {
       city: "New York, NY",
       affinity: 98,
       color: "from-purple-600 to-pink-500",
-      link: "/booking/cm7x6o5h0000013dozlhzmecc"
+      link: "/booking/cm7yz9ypr0000i41whx3wtgu7"
     },
     {
       id: 2,
@@ -86,7 +86,7 @@ export default function HomePage() {
       city: "Los Angeles, CA",
       affinity: 87,
       color: "from-red-600 to-orange-500",
-      link: "/booking/cm7x6o5h1000113dossnggfty"
+      link: "/booking/cm7yz9yps0001i41wtdq1x3sa"
     },
     {
       id: 3,
@@ -101,7 +101,7 @@ export default function HomePage() {
       city: "Chicago, IL",
       affinity: 92,
       color: "from-teal-600 to-emerald-500",
-      link: "/booking/cm7x6o5h1000213dospikt5vw"
+      link: "/booking/cm7yz9yps0002i41wv5irgm2m"
     },
     {
       id: 4,
@@ -116,7 +116,7 @@ export default function HomePage() {
       city: "Boston, MA",
       affinity: 89,
       color: "from-amber-600 to-yellow-500",
-      link: "/booking/cm7x6o5h1000313doir5sj6g4"
+      link: "/booking/cm7yz9yps0003i41wjeofg7xj"
     },
     {
       id: 5,
@@ -131,7 +131,7 @@ export default function HomePage() {
       city: "London, UK",
       affinity: 94,
       color: "from-blue-600 to-indigo-500",
-      link: "/booking/cm7x6o5h1000413dob74js85z"
+      link: "/booking/cm7yz9yps0004i41wpjbutchx"
     },
   ]
 
@@ -461,7 +461,7 @@ export default function HomePage() {
         <div className="container px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center gap-2 mb-6 md:mb-0">
-              <span className="text-xl font-bold text-gray-800">FanQueue</span>
+              <span className="text-xl font-bold text-gray-800">FanShow</span>
             </div>
             <div className="flex flex-wrap justify-center gap-4 md:gap-6">
               <Button variant="ghost" size="sm" className="text-gray-600 hover:text-purple-700">
@@ -482,7 +482,7 @@ export default function HomePage() {
             </div>
           </div>
           <div className="mt-8 text-center text-sm text-gray-500">
-            © {new Date().getFullYear()} FanQueue. All rights reserved.
+            © {new Date().getFullYear()} FanShow. All rights reserved.
           </div>
         </div>
       </footer>

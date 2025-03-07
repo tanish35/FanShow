@@ -18,7 +18,7 @@ export function CircularText() {
     canvas.height = 120
 
     // Text to be displayed in a circle
-    const text = "FANQUEUE • MUSIC • FESTIVAL • PRIORITY • "
+    const text = "FanShow • MUSIC • FESTIVAL • PRIORITY • "
 
     // Function to draw text in a circle
     const drawCircularText = () => {
