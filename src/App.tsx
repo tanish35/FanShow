@@ -1,13 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 // import { Toaster } from "sonner";
 import "./App.css";
-import {Navigation} from "./components/Navbar";
+import { Navigation } from "./components/Navbar";
 import ArtistDetailsPage from "./pages/ArtistDetails";
 import ConcertBooking from "./pages/BookingPage";
 import SpotifyLogin from "./pages/SpotifyLogin";
 import ProtectedSpotifyRoute from "./routes/ProtectedSpotifyRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import HomePage from "./pages/HomePage";
+import TicketPage from "./pages/TicketPage";
 
 // const Home = () => <h1>Home Page</h1>;
 const About = () => <h1>About Page</h1>;
@@ -22,6 +23,14 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<About />} />
           <Route path="/artist" element={<ArtistDetailsPage />} />
+          <Route
+            path="/tickets"
+            element={
+              <ProtectedRoute>
+                <TicketPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/booking/:id"
             element={
