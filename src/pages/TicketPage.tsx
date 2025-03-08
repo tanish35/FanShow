@@ -375,12 +375,17 @@ export default function MyTicketsPage() {
                                         <p className="text-sm text-gray-500">
                                           Transaction ID
                                         </p>
-                                        <p className="text-gray-700 truncate">
+                                        <a
+                                          href={`https://hivexplorer.com/tx/${ticket.blockchainDetails.transactionId}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-blue-600 hover:underline truncate"
+                                        >
                                           {
                                             ticket.blockchainDetails
                                               .transactionId
                                           }
-                                        </p>
+                                        </a>
                                       </div>
                                     </div>
                                   </div>
