@@ -123,7 +123,7 @@ export function Navigation() {
   const navItems = [
     { path: "/", label: "Home" },
     { path: "/artist", label: "Artist" },
-    { path: "/about", label: "About" },
+    { path: "/tickets", label: "My Tickets" },
   ];
 
   const handleUserClick = () => {
