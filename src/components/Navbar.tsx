@@ -122,7 +122,7 @@ export function Navigation() {
 
   const navItems = [
     { path: "/", label: "Home" },
-    { path: "/artist", label: "Artist" },
+    // { path: "/artist", label: "Artist" },
     { path: "/tickets", label: "My Tickets" },
   ];
 
