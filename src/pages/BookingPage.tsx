@@ -229,13 +229,12 @@ const ConcertBooking: React.FC = () => {
 
       setIsLoading(true);
 
-      // Already in first position with time left?
+      // Check if already in a booking session
       const storedSession = localStorage.getItem(`bookingSession:${id}`);
       if (storedSession) {
         try {
           const { expiresAt } = JSON.parse(storedSession);
           if (expiresAt > Date.now()) {
-            // We're already in the booking process
             setIsLoading(false);
             return;
           }
@@ -253,16 +252,33 @@ const ConcertBooking: React.FC = () => {
         toast.error("You have already booked a ticket");
         return;
       }
-      setScore(
-        response.data.queue.find(
-          (_: any, i: any, arr: string[]) =>
-            i % 2 === 0 &&
-            JSON.parse(arr[i]).userId === localStorage.getItem("userId")
-        )?.[1] || console.warn("User not found in queue")
-      );
+
+      // Get userId from localStorage
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        console.warn("User ID not found in localStorage");
+        return;
+      }
+
+      // Extract queue from response
+      const queue = response.data.queue || [];
+      let score: number | null = null;
+
+      for (let i = 0; i < queue.length; i += 2) {
+        try {
+          const queueItem = JSON.parse(queue[i]); // Safely parse user object
+          if (queueItem.userId === userId) {
+            score = queue[i + 1]; // Get corresponding score
+            break;
+          }
+        } catch (error) {
+          console.error("Error parsing queue item:", queue[i], error);
+        }
+      }
+
+      setScore(score !== null ? score : 0);
 
       setIsScorePopupOpen(true);
-
       setInQueue(true);
       toast.success("You've been added to the queue!");
     } catch (error) {
