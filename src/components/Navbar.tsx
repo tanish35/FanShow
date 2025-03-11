@@ -200,9 +200,7 @@ export function Navigation() {
               </div>
             ) : (
               <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                {" "}
                 <DialogTrigger asChild>
-                  {" "}
                   <Button
                     variant="outline"
                     size="sm"
@@ -213,59 +211,50 @@ export function Navigation() {
                     }`}
                     onClick={() => setIsOpen(true)}
                   >
-                    {" "}
                     <User
                       size={16}
                       className={isScrolled ? "text-gray-600" : "text-white"}
-                    />{" "}
-                    <span>Connect</span>{" "}
-                  </Button>{" "}
-                </DialogTrigger>{" "}
+                    />
+                    <span>Connect</span>
+                  </Button>
+                </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px] rounded-lg">
-                  {" "}
                   <DialogHeader>
-                    {" "}
                     <DialogTitle className="text-center text-xl dark:text-gray-100">
-                      {" "}
-                      Connect to Hive Keychain{" "}
-                    </DialogTitle>{" "}
-                  </DialogHeader>{" "}
+                      Connect to Hive Keychain
+                    </DialogTitle>
+                  </DialogHeader>
                   <div className="py-4 space-y-4">
-                    {" "}
                     <Input
                       placeholder="Enter Hive username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       className="focus-visible:ring-blue-500 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700"
-                    />{" "}
+                    />
                     <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      {" "}
                       You need the Hive Keychain browser extension to connect.
-                      Your Posting key will be used to verify your identity.{" "}
-                    </p>{" "}
+                      Your Posting key will be used to verify your identity.
+                    </p>
                     <p className="text-sm text-muted-foreground dark:text-gray-400">
-                      {" "}
-                      Not registered?{" "}
+                      Not registered?
                       <a
                         href="https://signup.hive.io/"
-                        className="text-blue-500 hover:underline"
+                        className="text-blue-500 hover:underline ml-1"
                       >
                         Sign up for Hive now
-                      </a>{" "}
-                    </p>{" "}
-                  </div>{" "}
+                      </a>
+                    </p>
+                  </div>
                   <DialogFooter className="flex-col sm:flex-row sm:justify-end">
-                    {" "}
                     <Button
                       onClick={handleConnect}
                       className="w-full bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700"
                       disabled={isLoading}
                     >
-                      {" "}
-                      {isLoading ? "Connecting..." : "Connect Wallet"}{" "}
-                    </Button>{" "}
-                  </DialogFooter>{" "}
-                </DialogContent>{" "}
+                      {isLoading ? "Connecting..." : "Connect Wallet"}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
               </Dialog>
             )}
           </div>
