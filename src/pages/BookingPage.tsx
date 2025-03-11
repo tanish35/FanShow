@@ -259,16 +259,14 @@ const ConcertBooking: React.FC = () => {
         console.warn("User ID not found in localStorage");
         return;
       }
-
-      // Extract queue from response
       const queue = response.data.queue || [];
       let score: number | null = null;
 
       for (let i = 0; i < queue.length; i += 2) {
         try {
-          const queueItem = JSON.parse(queue[i]); // Safely parse user object
+          const queueItem = JSON.parse(queue[i]);
           if (queueItem.userId === userId) {
-            score = queue[i + 1]; // Get corresponding score
+            score = queue[i + 1];
             break;
           }
         } catch (error) {
