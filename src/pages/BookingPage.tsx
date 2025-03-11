@@ -253,8 +253,14 @@ const ConcertBooking: React.FC = () => {
         toast.error("You have already booked a ticket");
         return;
       }
+      setScore(
+        response.data.queue.find(
+          (_: any, i: any, arr: string[]) =>
+            i % 2 === 0 &&
+            JSON.parse(arr[i]).userId === localStorage.getItem("userId")
+        )?.[1] || console.warn("User not found in queue")
+      );
 
-      setScore(response.data.queue[1]);
       setIsScorePopupOpen(true);
 
       setInQueue(true);
