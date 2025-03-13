@@ -1,8 +1,12 @@
 # 🎟️ Fair & Transparent Event Booking with Spotify & Hive Blockchain
 
+![FanShow Animation](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnhseGp2eDNyejV2OGQ1dnIwY3gzZXI0eDZ2NGpnMmVpOWNxdXp3NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6zyY4JYnf1JJNfhcKW/giphy.gif)
+
 ## 🚀 Overview
 
 Our event booking platform ensures **fair and transparent ticket distribution** using a **priority queue system** powered by **Spotify listening history** and **Hive blockchain integration**. This eliminates scalpers and ensures that true fans get access to tickets first.
+
+![Queue Animation](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExemRpdmFva3ZxM3NlaGoxZjlwd2VqanRkMDVpdGx4b3BidWN3cnN0eiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/5YuhLwDgrgtRVwI7OY/giphy.gif)
 
 ## 🔑 How It Works
 
@@ -12,6 +16,8 @@ Our event booking platform ensures **fair and transparent ticket distribution** 
 4. **Rank #1?** You get **1 minute** to complete payment.
 5. **Secure Ticketing:** Payment is broadcasted on the **Hive blockchain** to ensure **security and transparency**.
 6. **Access Anytime:** Successfully booked tickets are stored securely on the blockchain.
+
+![Live Updates](https://user-images.githubusercontent.com/43089049/126899157-a79d26e0-732c-4f65-8f48-7e79649cb432.gif)
 
 ## 🧠 Business Logic
 
@@ -26,6 +32,8 @@ Unlike traditional platforms like BookMyShow, which rely on a **first-come, firs
 - **Fair Ticketing:** Genuine fans get priority, eliminating bot interference.
 - **Real-Time Queue Tracking:** WebSocket-powered **live rank updates** eliminate uncertainty.
 - **Blockchain-Powered Security:** Tickets and payments are **immutable**, preventing fraud and resale scams.
+
+![Blockchain Security](https://cdn.dribbble.com/userupload/23756978/file/original-bd42c75268deb88d6ef6ecfd8beba7f2.gif)
 
 ## 💰 Revenue Model
 
@@ -50,6 +58,7 @@ Built to handle **high user volumes** and **large-scale events** without perform
 - **Frontend:** React.js
 - **Backend:** Node.js (Express) / Deno
 - **Database:** PostgreSQL (Managed via Prisma)
+- **Queue Management:** **Redis Sorted Sets** for efficient priority-based queueing.
 - **Blockchain:** Hive Blockchain for secure transactions
 - **Authentication:** Hive Keychain + Spotify OAuth
 - **WebSockets:** Real-time queue updates
@@ -98,8 +107,9 @@ DATABASE_URL=your_database_url
 We welcome contributions! Feel free to open issues or submit pull requests.
 
 ## 📜 License
-This project is licensed under the MIT License.
+This project is licensed under the Commercial License.
 
 ---
 
 Built with ❤️ for music fans. Let’s revolutionize ticketing! 🎶
+
