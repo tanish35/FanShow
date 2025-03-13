@@ -33,7 +33,7 @@ Unlike traditional platforms like BookMyShow, which rely on a **first-come, firs
 - **Real-Time Queue Tracking:** WebSocket-powered **live rank updates** eliminate uncertainty.
 - **Blockchain-Powered Security:** Tickets and payments are **immutable**, preventing fraud and resale scams.
 
-![Blockchain Security](https://cdn.dribbble.com/userupload/23756978/file/original-bd42c75268deb88d6ef6ecfd8beba7f2.gif)
+![Blockchain Security](https://cdn-icons-gif.flaticon.com/11700/11700968.gif)
 
 ## 💰 Revenue Model
 
