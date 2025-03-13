@@ -1,4 +1,4 @@
-# 🎟️ Fair & Transparent Event Booking with Spotify & Hive Blockchain
+# 🎟️ Welcome to Fanshow
 
 ![FanShow Animation](https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbnhseGp2eDNyejV2OGQ1dnIwY3gzZXI0eDZ2NGpnMmVpOWNxdXp3NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6zyY4JYnf1JJNfhcKW/giphy.gif)
 
